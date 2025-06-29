@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="tips_clear">操作失败：当前处于扫描状态，无法清除缓存，请先停止扫描。</string>
+    <string name="tips_start_scan">操作失败：当前处于扫描状态，无需重复启动扫描。</string>
+    <string name="tips_stop_scan">操作失败：当前非扫描状态，无需执行停止扫描操作。</string>
+</resources>

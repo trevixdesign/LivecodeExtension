@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="tips_clear">Operation Failed: Currently in scanning mode, unable to clear cache, please stop scanning first.</string>
+    <string name="tips_start_scan">Operation Failed: Currently in scanning mode, no need to restart scanning.</string>
+    <string name="tips_stop_scan">Operation Failed: Currently not in scanning mode, no need to stop scanning.</string>
+</resources>
