@@ -1,0 +1,35 @@
+<package version="0.0">
+  <name>com.livecode.library.native.flic</name>
+  <title>FLIC Button Library</title>
+  <author>LiveCode</author>
+  <version>1.0.0</version>
+  <os>android,ios</os>
+  <license>community</license>
+  <type>library</type>
+  <requires name="com.livecode.arithmetic"/>
+  <requires name="com.livecode.binary"/>
+  <requires name="com.livecode.list"/>
+  <requires name="com.livecode.logic"/>
+  <requires name="com.livecode.string"/>
+  <requires name="com.livecode.type"/>
+  <requires name="com.livecode.foreign"/>
+  <requires name="com.livecode.objc"/>
+  <requires name="com.livecode.engine"/>
+  <requires name="com.livecode.array"/>
+  <requires name="com.livecode.typeconvert"/>
+  <requires name="com.livecode.java"/>
+  <requires name="com.livecode.library.androidutils"/>
+  <requires name="com.livecode.system"/>
+  <requires name="com.livecode.commercial.license"/>
+  <metadata key="svgicon">M1536 896Q1536 1105 1433 1281.5 1330 1458 1153.5 1561 977 1664 768 1664 559 1664 382.5 1561 206 1458 103 1281.5 0 1105 0 896 0 687 103 510.5 206 334 382.5 231 559 128 768 128 977 128 1153.5 231 1330 334 1433 510.5 1536 687 1536 896Z</metadata>
+  <metadata key="android.permissions">BLUETOOTH,BLUETOOTH_ADMIN,ACCESS_FINE_LOCATION,INTERNET</metadata>
+  <handler name="flicButtonGet" parameters="in string,in string" return="any"/>
+  <handler name="flicButtonSet" parameters="in string,in string,in string" return="nothing"/>
+  <handler name="flicButtonConnect" parameters="in string" return="nothing"/>
+  <handler name="flicButtonDisconnect" parameters="in string" return="nothing"/>
+  <handler name="flicStartScanningForButtons" parameters="" return="nothing"/>
+  <handler name="flicStopScanningForButtons" parameters="" return="nothing"/>
+  <handler name="flicPairedButtons" parameters="" return="string"/>
+  <handler name="flicForgetButton" parameters="in string" return="nothing"/>
+  <handler name="flicInitializeLibrary" parameters="" return="boolean"/>
+</package>

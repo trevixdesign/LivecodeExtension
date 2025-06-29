@@ -1,0 +1,43 @@
+import module com.livecode.library.native.flic.ios
+  use com.livecode.foreign
+  use com.livecode.objc
+  use com.livecode.library.native.flic.shared
+  use com.livecode.engine
+  use com.livecode.arithmetic
+  use com.livecode.binary
+  use com.livecode.list
+  use com.livecode.logic
+  use com.livecode.string
+  use com.livecode.type
+  use com.livecode.array
+  use com.livecode.typeconvert
+  type NSInteger is CSLong
+  handler type ForgetButtonCompletionHandlerType(in pUUID as ObjcId, in pError as optional ObjcId) returns nothing
+  handler ForgetButtonCompletionHandler(in pBlock as Pointer, in pUUID as ObjcId, in pError as optional ObjcId) returns nothing
+  handler type ScanForButtonsStateChangeHandlerType(in pEvent as CSLong) returns nothing
+  handler ScanForButtonsStateChangeHandler(in pBlock as Pointer, in pEvent as CSLong) returns nothing
+  handler type ScanForButtonsCompletionHandlerType(in pButton as optional ObjcId, in pError as optional ObjcId) returns nothing
+  handler ScanForButtonsCompletionHandler(in pBlock as Pointer, in pButton as optional ObjcId, in pError as optional ObjcId) returns nothing
+  handler _FLICManagerDelegateDidRestoreState(in pManager as ObjcId) returns nothing
+  handler _FLICManagerDelegateDidUpdateState(in pManager as ObjcId, in pState as CSLong) returns nothing
+  handler _FLICButtonDelegateButtonDidConnect(in pManager as ObjcId) returns nothing
+  handler _FLICButtonDelegateButtonIsReady(in pManager as ObjcId) returns nothing
+  handler _FLICButtonDelegateButtonDidDisconnectWithError(in pUUID as ObjcId, in pError as optional ObjcId) returns nothing
+  handler _FLICButtonDelegateButtonDidUnpairWithError(in pUUID as ObjcId, in pError as optional ObjcId) returns nothing
+  handler _FLICButtonDelegateButtonDidFailToConnectWithError(in pUUID as ObjcId, in pError as optional ObjcId) returns nothing
+  handler _FLICButtonDelegateButtonDidRecieveButtonDown(in pButton as ObjcId, in pQueued as CBool, in pAge as CSLong) returns nothing
+  handler _FLICButtonDelegateButtonDidRecieveButtonUp(in pButton as ObjcId, in pQueued as CBool, in pAge as CSLong) returns nothing
+  handler _FLICButtonDelegateButtonDidRecieveButtonClick(in pButton as ObjcId, in pQueued as CBool, in pAge as CSLong) returns nothing
+  handler _FLICButtonDelegateButtonDidRecieveButtonDoubleClick(in pButton as ObjcId, in pQueued as CBool, in pAge as CSLong) returns nothing
+  handler _FLICButtonDelegateButtonDidRecieveButtonHold(in pButton as ObjcId, in pQueued as CBool, in pAge as CSLong) returns nothing
+  handler _FLICButtonDelegateButtonDidUpdateNickname(in pButton as ObjcId, in pName as ObjcId) returns nothing
+  unsafe handler _iosFlicInitializeLibrary() returns Boolean
+  unsafe handler _iosFlicStartScanningForButtons() returns nothing
+  unsafe handler _iosFlicStopScanningForButtons() returns nothing
+  unsafe handler _iosFlicButtonGet(in pUUID as String, in pProperty as String) returns any
+  unsafe handler _iosFlicButtonSet(in pUUID as String, in pProperty as String, in pValue as String) returns nothing
+  unsafe handler _iosFlicButtonConnect(in pUUID as String) returns nothing
+  unsafe handler _iosFlicButtonDisconnect(in pUUID as String) returns nothing
+  unsafe handler _iosFlicForgetButton(in pUUID as String) returns nothing
+  unsafe handler _iosFlicPairedButtons() returns String
+end module

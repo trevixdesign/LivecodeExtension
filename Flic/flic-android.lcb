@@ -1,0 +1,512 @@
+/*
+Copyright (C) 2019 LiveCode Ltd.
+
+This file is part of LiveCode.
+
+LiveCode is free software; you can redistribute it and/or modify it under
+the terms of the GNU General Public License v3 as published by the Free
+Software Foundation.
+
+LiveCode is distributed in the hope that it will be useful, but WITHOUT ANY
+WARRANTY; without even the implied warranty of MERCHANTABILITY or
+FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+for more details.
+
+You should have received a copy of the GNU General Public License
+along with LiveCode.  If not see <http://www.gnu.org/licenses/>.  */
+
+module com.livecode.library.native.flic.android
+
+use com.livecode.foreign
+use com.livecode.java
+use com.livecode.engine
+
+use com.livecode.library.androidutils
+
+use com.livecode.library.native.flic.shared
+
+variable sTarget as optional ScriptObject
+variable sScanListener as optional JObject
+variable sButtonListener as optional JObject
+variable sButtonListenerListener as optional JObject
+variable sLifecycleListener as optional JObject
+variable sPaused as JBoolean
+
+/* Flic2Button */
+
+private foreign handler _JNI_Flic2Button_addListener(in pButton as JObject, in pListener as JObject) returns nothing \
+    binds to "java:io.flic.flic2libandroid.Flic2Button>addListener(Lio/flic/flic2libandroid/Flic2ButtonListener;)V"
+
+private foreign handler _JNI_Flic2Button_connect(in pButton as JObject) returns nothing \
+    binds to "java:io.flic.flic2libandroid.Flic2Button>connect()V"
+
+private foreign handler _JNI_Flic2Button_disconnectOrAbortPendingConnection(in pButton as JObject) returns nothing \
+    binds to "java:io.flic.flic2libandroid.Flic2Button>disconnectOrAbortPendingConnection()V"
+
+private foreign handler _JNI_Flic2Button_getBdAddr(in pButton as JObject) returns JString \
+    binds to "java:io.flic.flic2libandroid.Flic2Button>getBdAddr()Ljava/lang/String;"
+
+private foreign handler _JNI_Flic2Button_getConnectionState(in pButton as JObject) returns JInt \
+    binds to "java:io.flic.flic2libandroid.Flic2Button>getConnectionState()I"
+
+private foreign handler _JNI_Flic2Button_getFirmwareVersion(in pButton as JObject) returns JInt \
+    binds to "java:io.flic.flic2libandroid.Flic2Button>getFirmwareVersion()I"
+
+private foreign handler _JNI_Flic2Button_getLastKnownBatteryLevel(in pButton as JObject) returns JObject \
+    binds to "java:io.flic.flic2libandroid.Flic2Button>getLastKnownBatteryLevel()Lio/flic/flic2libandroid/BatteryLevel;"
+
+private foreign handler _JNI_Flic2Button_getName(in pButton as JObject) returns JString \
+    binds to "java:io.flic.flic2libandroid.Flic2Button>getName()Ljava/lang/String;"
+
+private foreign handler _JNI_Flic2Button_setName(in pButton as JObject, in pName as JString) returns nothing \
+    binds to "java:io.flic.flic2libandroid.Flic2Button>setName(Ljava/lang/String;)V"
+
+private foreign handler _JNI_Flic2Button_getPressCount(in pButton as JObject) returns JInt \
+    binds to "java:io.flic.flic2libandroid.Flic2Button>getPressCount()I"
+
+private foreign handler _JNI_Flic2Button_getReadyTimestamp(in pButton as JObject) returns JLong \
+    binds to "java:io.flic.flic2libandroid.Flic2Button>getReadyTimestamp()J"
+
+private foreign handler _JNI_Flic2Button_getSerialNumber(in pButton as JObject) returns JString \
+    binds to "java:io.flic.flic2libandroid.Flic2Button>getSerialNumber()Ljava/lang/String;"
+
+private foreign handler _JNI_Flic2Button_getUuid(in pButton as JObject) returns JString \
+    binds to "java:io.flic.flic2libandroid.Flic2Button>getUuid()Ljava/lang/String;"
+
+private foreign handler _JNI_Flic2Button_isUnpaired(in pButton as JObject) returns JBoolean \
+    binds to "java:io.flic.flic2libandroid.Flic2Button>isUnpaired()Z"
+
+/* BatteryLevel */
+
+private foreign handler _JNI_BatteryLevel_getVoltage(in pBatteryLevel as JObject) returns JFloat \
+    binds to "java:io.flic.flic2libandroid.BatteryLevel>getVoltage()F"
+
+/* Flic2Manager */
+
+private foreign handler _JNI_Flic2Manager_init(in pContext as JObject, in pHandler as JObject) returns nothing \
+    binds to "java:io.flic.flic2libandroid.Flic2Manager>init(Landroid/content/Context;Landroid/os/Handler;)V!static"
+
+private foreign handler _JNI_Flic2Manager_getInstance() returns JObject \
+    binds to "java:io.flic.flic2libandroid.Flic2Manager>getInstance()Lio/flic/flic2libandroid/Flic2Manager;!static"
+
+private foreign handler _JNI_Flic2Manager_forgetButton(in pManager as JObject, in pButton as JObject) returns nothing \
+    binds to "java:io.flic.flic2libandroid.Flic2Manager>forgetButton(Lio/flic/flic2libandroid/Flic2Button;)V"
+
+private foreign handler _JNI_Flic2Manager_getButtons(in pManager as JObject) returns JObject \
+    binds to "java:io.flic.flic2libandroid.Flic2Manager>getButtons()Ljava/util/List;"
+
+private foreign handler _JNI_Flic2Manager_errorCodeToString(in pErrorCode as JInt) returns JString \
+    binds to "java:io.flic.flic2libandroid.Flic2Manager>errorCodeToString(I)Ljava/lang/String;!static"
+
+private foreign handler _JNI_Flic2Manager_startScan(in pManager as JObject, in pCallback as JObject) returns nothing \
+    binds to "java:io.flic.flic2libandroid.Flic2Manager>startScan(Lio/flic/flic2libandroid/Flic2ScanCallback;)V"
+
+private foreign handler _JNI_Flic2Manager_stopScan(in pManager as JObject) returns nothing \
+    binds to "java:io.flic.flic2libandroid.Flic2Manager>stopScan()V"
+
+/* Handler */
+
+private foreign handler _JNI_Handler_new() returns JObject \
+    binds to "java:android.os.Handler>new()?ui"
+
+/* List */
+
+private foreign handler _JNI_List_iterator(in pList as JObject) returns JObject \
+    binds to "java:java.util.List>iterator()Ljava/util/Iterator;"
+
+/* Iterator */
+
+private foreign handler _JNI_Iterator_hasNext(in pIterator as JObject) returns JBoolean \
+    binds to "java:java.util.Iterator>hasNext()Z"
+
+private foreign handler _JNI_Iterator_next(in pIterator as JObject) returns JObject \
+    binds to "java:java.util.Iterator>next()Ljava/lang/Object;"
+
+/* Flic2ScanCallback */
+
+private foreign handler _JNI_Flic2ScanCallback(in pCallbacks as Array) returns JObject \
+    binds to "java:io.flic.flic2libandroid.Flic2ScanCallback>interface()"
+
+handler _ScanCallbackOnComplete(in pResult as JObject, in pSubCode as JObject, in pButton as optional JObject) returns nothing
+    if sTarget is nothing  or sPaused then
+        return
+    end if
+
+    unsafe
+        variable tError as String
+        unsafe
+            variable tErrorCode
+            put _JNI_Number_intValue(pResult) into tErrorCode
+            if tErrorCode is not 0 then
+                put StringFromJString(_JNI_Flic2Manager_errorCodeToString(tErrorCode)) into tError
+            end if
+        end unsafe
+
+        if pButton is not nothing then
+            _JNI_Flic2Button_addListener(pButton, sButtonListener)
+            post "flicScanForButtonsDidFindButton" to sTarget \
+                with [_FlicButtonToUUID(pButton), tError]
+        else
+            post "flicScanForButtonsDidFailWithError" to sTarget with [tError]
+        end if
+    end unsafe
+end handler
+
+handler _ScanCallbackOnConnected() returns nothing
+
+end handler
+
+handler _ScanCallbackOnDiscovered(in pBDAddr as JObject) returns nothing
+
+end handler
+
+handler _ScanCallbackOnDiscoveredAlreadyPairedButton(in pButton as JObject) returns nothing
+
+end handler
+
+/* ButtonListener */
+
+private foreign handler _JNI_ButtonListener_new() returns JObject \
+    binds to "java:com.livecode.library.flic.ButtonListener>new()"
+
+private foreign handler _JNI_ButtonListener_setListener(in pListener as JObject, in pListenerListener as JObject) returns nothing \
+    binds to "java:com.livecode.library.flic.ButtonListener>setListener(Lcom/livecode/library/flic/ButtonListener$ButtonListenerListener;)V"
+
+/* ButtonListenerListener */
+
+private foreign handler _JNI_ButtonListenerListener(in pCallbacks as Array) returns JObject \
+    binds to "java:com.livecode.library.flic.ButtonListener$ButtonListenerListener>interface()"
+
+/* Boolean */
+
+private foreign handler _JNI_Boolean_booleanValue(in pBoolean as JObject) returns JBoolean \
+    binds to "java:java.lang.Boolean>booleanValue()Z"
+
+/* Number */
+
+private foreign handler _JNI_Number_intValue(in pNumber as JObject) returns JInt \
+    binds to "java:java.lang.Number>intValue()I"
+
+handler _ButtonListenerOnConnect(in pButton as JObject) returns nothing
+    if sTarget is nothing  or sPaused then
+        return
+    end if
+
+    post "flicButtonDidConnect" to sTarget with [_FlicButtonToUUID(pButton)]
+end handler
+
+handler _ButtonListenerOnReady(in pButton as JObject, in pTimestamp as JObject) returns nothing
+    if sTarget is nothing  or sPaused then
+        return
+    end if
+
+    post "flicButtonIsReady" to sTarget with [_FlicButtonToUUID(pButton)]
+end handler
+
+handler _ButtonListenerOnDisconnect(in pButton as JObject) returns nothing
+    if sTarget is nothing  or sPaused then
+        return
+    end if
+
+    post "flicButtonDidDisconnect" to sTarget with [_FlicButtonToUUID(pButton)]
+end handler
+
+handler _ButtonListenerOnUnpaired(in pButton as JObject) returns nothing
+    if sTarget is nothing  or sPaused then
+        return
+    end if
+
+    post "flicButtonDidUnpair" to sTarget with [_FlicButtonToUUID(pButton)]
+end handler
+
+handler _ButtonListenerOnFailure(in pButton as JObject, in pErrorCode as JObject, in pSubCode as JObject) returns nothing
+    if sTarget is nothing  or sPaused then
+        return
+    end if
+
+    variable tError as String
+    unsafe
+        variable tErrorCode
+        put _JNI_Number_intValue(pErrorCode) into tErrorCode
+        if tErrorCode is not 0 then
+            put StringFromJString(_JNI_Flic2Manager_errorCodeToString(tErrorCode)) into tError
+        end if
+    end unsafe
+    post "flicButtonDidFailToConnect" to sTarget with [_FlicButtonToUUID(pButton), tError]
+end handler
+
+handler _ButtonListenerOnNameUpdated(in pButton as JObject, in pName as JString) returns nothing
+    if sTarget is nothing  or sPaused then
+        return
+    end if
+
+    post "flicButtonDidUpdateName" to sTarget with [_FlicButtonToUUID(pButton), StringFromJString(pName)]
+end handler
+
+handler _ButtonListenerOnButtonUpOrDown(in pButton as JObject, in pWasQueued as JObject, in pLastQueued as JObject, in pTimestamp as JObject, in pIsUp as JObject,in pIsDown as JObject) returns nothing
+    if sTarget is nothing  or sPaused then
+        return
+    end if
+
+    unsafe
+        variable tWasQueued as Boolean
+        put _JNI_Boolean_booleanValue(pWasQueued) into tWasQueued
+        
+        variable tUp as Boolean
+        put _JNI_Boolean_booleanValue(pIsUp) into tUp
+        
+        if tUp then
+            post "flicButtonDidRecieveButtonUp" to sTarget with [_FlicButtonToUUID(pButton), tWasQueued]
+        else
+            post "flicButtonDidRecieveButtonDown" to sTarget with [_FlicButtonToUUID(pButton), tWasQueued]
+        end if
+    end unsafe
+end handler
+
+handler _ButtonListenerOnButtonSingleOrDoubleClickOrHold(in pButton as JObject, in pWasQueued as JObject, in pLastQueued as JObject, in pTimestamp as JObject, in pIsSingleClick as JObject, in pIsDoubleClick as JObject, in pIsHold as JObject) returns nothing
+    if sTarget is nothing or sPaused then
+        return
+    end if
+
+    unsafe
+        variable tWasQueued as Boolean
+        put _JNI_Boolean_booleanValue(pWasQueued) into tWasQueued
+        
+        variable tSingleClick as Boolean
+        put _JNI_Boolean_booleanValue(pIsSingleClick) into tSingleClick
+        
+        variable tDoubleClick as Boolean
+        put _JNI_Boolean_booleanValue(pIsDoubleClick) into tDoubleClick
+
+        if tSingleClick then
+            post "flicButtonDidRecieveButtonClick" to sTarget with [_FlicButtonToUUID(pButton), tWasQueued]
+        else if tDoubleClick then
+            post "flicButtonDidRecieveButtonDoubleClick" to sTarget with [_FlicButtonToUUID(pButton), tWasQueued]
+        else
+            post "flicButtonDidRecieveButtonHold" to sTarget with [_FlicButtonToUUID(pButton), tWasQueued]
+        end if
+    end unsafe
+end handler
+
+constant kCONNECTION_STATE_DISCONNECTED is 0
+constant kCONNECTION_STATE_CONNECTING is 1
+constant kCONNECTION_STATE_CONNECTED_STARTING is 2
+constant kCONNECTION_STATE_CONNECTED_READY is 3
+
+private handler _FlicButtonStateToString(in pState as Integer) returns String
+     if pState is kCONNECTION_STATE_DISCONNECTED then
+        return "disconnected"
+    else if pState is kCONNECTION_STATE_CONNECTING then
+        return "connecting"
+    else if pState is kCONNECTION_STATE_CONNECTED_STARTING then
+        return "starting"
+    else if pState is kCONNECTION_STATE_CONNECTED_READY then
+        return "connected"
+    end if
+end handler
+
+private handler OnAppPaused() returns nothing
+    put true into sPaused
+end handler
+
+private handler OnAppResumed() returns nothing
+    put false into sPaused
+end handler
+
+public unsafe handler _androidFlicInitializeLibrary() returns Boolean
+    put the caller into sTarget
+    if not AndroidRequestPermission("android.permission.ACCESS_FINE_LOCATION") then
+        return false
+    end if
+
+    if sScanListener is nothing then
+        put _JNI_Flic2ScanCallback({ "onComplete" : _ScanCallbackOnComplete, \
+                                     "onConnected" : _ScanCallbackOnConnected, \
+                                     "onDiscovered" : _ScanCallbackOnDiscovered, \
+                                     "onDiscoveredAlreadyPairedButton" : _ScanCallbackOnDiscoveredAlreadyPairedButton }) \
+                                     into sScanListener
+         if sScanListener is nothing then
+            return false
+        end if
+    end if
+
+    if sButtonListener is nothing then
+        put _JNI_ButtonListener_new() into sButtonListener
+        if sButtonListener is nothing then
+            return false
+        end if
+    end if
+
+    if sButtonListenerListener is nothing then
+        put _JNI_ButtonListenerListener({ "onConnect" : _ButtonListenerOnConnect, \
+                                          "onReady" : _ButtonListenerOnReady, \
+                                          "onDisconnect" : _ButtonListenerOnDisconnect, \
+                                          "onUnpaired" : _ButtonListenerOnUnpaired, \
+                                          "onFailure" : _ButtonListenerOnFailure, \
+                                          "onNameUpdated" : _ButtonListenerOnNameUpdated, \
+                                          "onButtonUpOrDown" : _ButtonListenerOnButtonUpOrDown, \
+                                          "onButtonSingleOrDoubleClickOrHold" : _ButtonListenerOnButtonSingleOrDoubleClickOrHold }) \
+                                          into sButtonListenerListener
+        if sButtonListenerListener is nothing then
+            return false
+       end if
+    end if
+
+    _JNI_ButtonListener_setListener(sButtonListener, sButtonListenerListener)
+    _JNI_Flic2Manager_init(ApplicationContext(), _JNI_Handler_new())
+
+    variable tButtons as List
+    put _ListToList(_JNI_Flic2Manager_getButtons(_JNI_Flic2Manager_getInstance())) into tButtons
+
+    variable tButton as JObject
+    repeat for each element tButton in tButtons
+        _JNI_Flic2Button_addListener(tButton, sButtonListener)
+        _JNI_Flic2Button_connect(tButton)
+    end repeat
+
+    /* Android will continue to post messages while paused but not yet stopped
+     * so we listen and ignore events while paused. */
+    put AndroidRegisterLifecycleListener(OnAppPaused, OnAppResumed) into sLifecycleListener
+    put false into sPaused
+
+    return true
+end handler
+
+public unsafe handler _androidFlicStartScanningForButtons() returns nothing
+    _JNI_Flic2Manager_startScan(_JNI_Flic2Manager_getInstance(), sScanListener)
+end handler
+
+public unsafe handler _androidFlicStopScanningForButtons() returns nothing
+    _JNI_Flic2Manager_stopScan(_JNI_Flic2Manager_getInstance())
+end handler
+
+public unsafe handler _androidFlicButtonGet(in pUUID as String, in pProperty as String) returns any
+    variable tButton as optional JObject
+    put _FlicButtonFromUUID(pUUID) into tButton
+    if tButton is nothing then
+        return ""
+    end if
+
+    variable tProperty as String
+    put the lower of pProperty into tProperty
+
+    if tProperty is "name" then
+        return StringFromJString(_JNI_Flic2Button_getName(tButton))
+    else if tProperty is "bluetoothaddress" then
+        return StringFromJString(_JNI_Flic2Button_getBdAddr(tButton))
+    else if tProperty is "serialnumber" then
+        return StringFromJString(_JNI_Flic2Button_getSerialNumber(tButton))
+    else if tProperty is "state" then
+        return _FlicButtonStateToString(_JNI_Flic2Button_getConnectionState(tButton))
+    else if tProperty is "presscount" then
+        return _JNI_Flic2Button_getPressCount(tButton)
+    else if tProperty is "batteryvoltage" then
+        variable tBatteryLevel as JObject
+        put _JNI_Flic2Button_getLastKnownBatteryLevel(tButton) into tBatteryLevel
+        return _JNI_BatteryLevel_getVoltage(tBatteryLevel)
+    else if tProperty is "isunpaired" then
+        return _JNI_Flic2Button_isUnpaired(tButton)
+    else if tProperty is "isready" then
+        return _JNI_Flic2Button_getConnectionState(tButton) is kCONNECTION_STATE_CONNECTED_READY
+    end if
+
+    throw "unknown property"
+end handler
+
+public unsafe handler _androidFlicButtonSet(in pUUID as String, in pProperty as String, in pValue as String) returns nothing
+    variable tButton as optional JObject
+    put _FlicButtonFromUUID(pUUID) into tButton
+    if tButton is nothing then
+        return
+    end if
+
+    variable tProperty as String
+    put the lower of pProperty into tProperty
+
+    if tProperty is "name" then
+        return _JNI_Flic2Button_setName(tButton, StringToJString(pValue))
+    end if
+
+    throw "unknown property"
+end handler
+
+public unsafe handler _androidFlicButtonConnect(in pUUID as String) returns nothing
+    variable tButton as optional JObject
+    put _FlicButtonFromUUID(pUUID) into tButton
+    if tButton is nothing then
+        return
+    end if
+
+    _JNI_Flic2Button_connect(tButton)
+end handler
+
+public unsafe handler _androidFlicButtonDisconnect(in pUUID as String) returns nothing
+    variable tButton as optional JObject
+    put _FlicButtonFromUUID(pUUID) into tButton
+    if tButton is nothing then
+        return
+    end if
+
+    _JNI_Flic2Button_disconnectOrAbortPendingConnection(tButton)
+end handler
+
+public unsafe handler _androidFlicPairedButtons() returns String
+    variable tList as List
+    unsafe
+        variable tButtons as List
+        put _ListToList(_JNI_Flic2Manager_getButtons(_JNI_Flic2Manager_getInstance())) into tButtons
+
+        variable tButton as JObject
+        repeat for each element tButton in tButtons
+            push _FlicButtonToUUID(tButton) onto back of tList
+        end repeat
+    end unsafe
+
+    variable tStringList as String
+    combine tList with "\n" into tStringList
+    return tStringList
+end handler
+
+public unsafe handler _androidFlicForgetButton(in pUUID as String) returns nothing
+    variable tButton as optional JObject
+    put _FlicButtonFromUUID(pUUID) into tButton
+    if tButton is nothing then
+        return
+    end if
+
+    _JNI_Flic2Manager_forgetButton(_JNI_Flic2Manager_getInstance(), tButton)
+end handler
+
+private handler _FlicButtonToUUID(in pButton as JObject) returns String
+    unsafe
+        return StringFromJString(_JNI_Flic2Button_getUuid(pButton))
+    end unsafe
+end handler
+
+private handler _FlicButtonFromUUID(in pUUID as String) returns optional JObject
+    unsafe
+        variable tFoundButton as optional JObject
+        variable tButtons as List
+        put _ListToList(_JNI_Flic2Manager_getButtons(_JNI_Flic2Manager_getInstance())) into tButtons
+
+        variable tButton as JObject
+        repeat for each element tButton in tButtons
+            if _FlicButtonToUUID(tButton) is pUUID then
+                put tButton into tFoundButton
+            end if
+        end repeat
+        return tFoundButton
+    end unsafe
+end handler
+
+private unsafe handler _ListToList(in pList as JObject) returns List
+    variable tList as List
+    variable tIterator as JObject
+    put _JNI_List_iterator(pList) into tIterator
+    repeat while _JNI_Iterator_hasNext(tIterator)
+        push _JNI_Iterator_next(tIterator) onto back of tList
+    end repeat
+    return tList
+end handler
+
+end module

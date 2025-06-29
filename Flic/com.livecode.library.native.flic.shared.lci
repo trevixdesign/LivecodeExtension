@@ -1,0 +1,9 @@
+import module com.livecode.library.native.flic.shared
+  use com.livecode.arithmetic
+  use com.livecode.binary
+  use com.livecode.list
+  use com.livecode.logic
+  use com.livecode.string
+  use com.livecode.type
+  handler _FlicStateToString(in pState as Number) returns String
+end module

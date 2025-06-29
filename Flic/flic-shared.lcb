@@ -1,0 +1,59 @@
+/*
+Copyright (C) 2019 LiveCode Ltd.
+
+This file is part of LiveCode.
+
+LiveCode is free software; you can redistribute it and/or modify it under
+the terms of the GNU General Public License v3 as published by the Free
+Software Foundation.
+
+LiveCode is distributed in the hope that it will be useful, but WITHOUT ANY
+WARRANTY; without even the implied warranty of MERCHANTABILITY or
+FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+for more details.
+
+You should have received a copy of the GNU General Public License
+along with LiveCode.  If not see <http://www.gnu.org/licenses/>.  */
+
+module com.livecode.library.native.flic.shared
+
+use com.livecode.foreign
+
+/* FLICManagerState */
+
+// State is unknown, update imminent.
+constant kFLICManagerStateUnknown is 0
+
+// The bluetooth connection with the system service was momentarily lost, update
+// imminent.
+constant kFLICManagerStateResetting is 1
+
+// The Flic manager can not be used on this platform.
+constant kFLICManagerStateUnsupported is 2
+
+// The application is not authorized to use Bluetooth Low Energy.
+constant kFLICManagerStateUnauthorized is 3
+
+// Bluetooth is currently powered off.
+constant kFLICManagerStatePoweredOff is 4
+
+// Bluetooth is currently powered on and available to use.
+constant kFLICManagerStatePoweredOn is 5
+
+public handler _FlicStateToString(in pState as Integer) returns String
+    if pState is kFLICManagerStateUnknown then
+        return "unknown"
+    else if pState is kFLICManagerStateResetting then
+        return "resetting"
+    else if pState is kFLICManagerStateUnsupported then
+        return "unsupported"
+    else if pState is kFLICManagerStateUnauthorized then
+        return "unauthorized"
+    else if pState is kFLICManagerStatePoweredOff then
+        return "off"
+    else if pState is kFLICManagerStatePoweredOn then
+        return "on"
+    end if
+end handler
+
+end module

@@ -1,0 +1,640 @@
+/*
+Copyright (C) 2019 LiveCode Ltd.
+
+This file is part of LiveCode.
+
+LiveCode is free software; you can redistribute it and/or modify it under
+the terms of the GNU General Public License v3 as published by the Free
+Software Foundation.
+
+LiveCode is distributed in the hope that it will be useful, but WITHOUT ANY
+WARRANTY; without even the implied warranty of MERCHANTABILITY or
+FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+for more details.
+
+You should have received a copy of the GNU General Public License
+along with LiveCode.  If not see <http://www.gnu.org/licenses/>.  */
+
+module com.livecode.library.native.flic.ios
+
+use com.livecode.foreign
+use com.livecode.objc
+use com.livecode.engine
+
+use com.livecode.library.native.flic.shared
+
+public type NSInteger is CSLong
+
+/* NSError */
+
+private foreign handler ObjC_NSError_localizedDescription(\
+    in pError as ObjcId) \
+    returns optional ObjcId \
+    binds to "objc:NSError.-localizedDescription"
+
+/* FLICButton */
+
+private foreign handler ObjC_FLICButton_setDelegate(\
+    in pButton as ObjcId, \
+    in pDelegate as ObjcId) \
+    returns nothing \
+    binds to "objc:flic2lib>FLICButton.-setDelegate:"
+
+private foreign handler ObjC_FLICButton_identifier(\
+    in pButton as ObjcId) \
+    returns ObjcId \
+    binds to "objc:flic2lib>FLICButton.-identifier"
+
+private foreign handler ObjC_FLICButton_name(\
+    in pButton as ObjcId) \
+    returns ObjcId \
+    binds to "objc:flic2lib>FLICButton.-name"
+
+private foreign handler ObjC_FLICButton_nickname(\
+    in pButton as ObjcId) \
+    returns optional ObjcId \
+    binds to "objc:flic2lib>FLICButton.-nickname"
+
+private foreign handler ObjC_FLICButton_setNickname(\
+    in pButton as ObjcId, \
+    in pNickname as ObjcId) \
+    returns nothing \
+    binds to "objc:flic2lib>FLICButton.-setNickname:"
+
+private foreign handler ObjC_FLICButton_bluetoothAddress(\
+    in pButton as ObjcId) \
+    returns ObjcId \
+    binds to "objc:flic2lib>FLICButton.-bluetoothAddress"
+
+private foreign handler ObjC_FLICButton_uuid(\
+    in pButton as ObjcId) \
+    returns ObjcId \
+    binds to "objc:flic2lib>FLICButton.-uuid"
+
+private foreign handler ObjC_FLICButton_serialNumber(\
+    in pButton as ObjcId) \
+    returns ObjcId \
+    binds to "objc:flic2lib>FLICButton.-serialNumber"
+
+private foreign handler ObjC_FLICButton_triggerMode(\
+    in pButton as ObjcId) \
+    returns NSInteger \
+    binds to "objc:flic2lib>FLICButton.-triggerMode"
+
+private foreign handler ObjC_FLICButton_setTriggerMode(\
+    in pButton as ObjcId, \
+    in pTriggerMode as NSInteger) \
+    returns nothing \
+    binds to "objc:flic2lib>FLICButton.-setTriggerMode:"
+
+private foreign handler ObjC_FLICButton_state(\
+    in pButton as ObjcId) \
+    returns NSInteger \
+    binds to "objc:flic2lib>FLICButton.-state"
+
+private foreign handler ObjC_FLICButton_pressCount(\
+    in pButton as ObjcId) \
+    returns UInt32 \
+    binds to "objc:flic2lib>FLICButton.-pressCount"
+
+private foreign handler ObjC_FLICButton_firmwareRevision(\
+    in pButton as ObjcId) \
+    returns UInt32 \
+    binds to "objc:flic2lib>FLICButton.-firmwareRevision"
+
+private foreign handler ObjC_FLICButton_isReady(\
+    in pButton as ObjcId) \
+    returns CBool \
+    binds to "objc:flic2lib>FLICButton.-isReady"
+
+private foreign handler ObjC_FLICButton_batteryVoltage(\
+    in pButton as ObjcId) \
+    returns CFloat \
+    binds to "objc:flic2lib>FLICButton.-batteryVoltage"
+
+private foreign handler ObjC_FLICButton_isUnpaired(\
+    in pButton as ObjcId) \
+    returns CBool \
+    binds to "objc:flic2lib>FLICButton.-isUnpaired"
+
+private foreign handler ObjC_FLICButton_connect(\
+    in pButton as ObjcId) \
+    returns nothing \
+    binds to "objc:flic2lib>FLICButton.-connect"
+
+private foreign handler ObjC_FLICButton_disconnect(\
+    in pButton as ObjcId) \
+    returns nothing \
+    binds to "objc:flic2lib>FLICButton.-disconnect"
+
+/* FLICManager */
+
+private foreign handler ObjC_FLICManager_sharedManager() \
+    returns optional ObjcAutoreleasedId \
+    binds to "objc:flic2lib>FLICManager.+sharedManager"
+
+private foreign handler ObjC_FLICManager_configure(\
+    in pDelegate as ObjcId, \
+    in pButtonDelegate as ObjcId, \
+    in pBackground as CBool) \
+    returns optional ObjcAutoreleasedId \
+    binds to "objc:flic2lib>FLICManager.+configureWithDelegate:buttonDelegate:background:"
+
+private foreign handler ObjC_FLICManager_setDelegate(\
+    in pManager as ObjcId, \
+    in pDelegate as ObjcId) \
+    returns nothing \
+    binds to "objc:flic2lib>FLICManager.-setDelegate:"
+
+private foreign handler ObjC_FLICManager_setButtonDelegate(\
+    in pManager as ObjcId, \
+    in pDelegate as ObjcId) \
+    returns nothing \
+    binds to "objc:flic2lib>FLICManager.-setButtonDelegate:"
+
+private foreign handler ObjC_FLICManager_state(\
+    in pManager as ObjcId) \
+    returns NSInteger \
+    binds to "objc:flic2lib>FLICManager.-state"
+
+private foreign handler ObjC_FLICManager_buttons(\
+    in pManager as ObjcId) \
+    returns ObjcId \
+    binds to "objc:flic2lib>FLICManager.-buttons"
+
+private foreign handler ObjC_FLICManager_stopScan(\
+    in pManager as ObjcId) \
+    returns nothing \
+    binds to "objc:flic2lib>FLICManager.-stopScan"
+
+private foreign handler ObjC_FLICManager_scanForButtons(\
+    in pManager as ObjcId, \
+    in pStateChangeHandlerHandler as ObjcBlockPointer, \
+    in pCompletionHandler as ObjcBlockPointer) \
+    returns nothing \
+    binds to "objc:flic2lib>FLICManager.-scanForButtonsWithStateChangeHandler:completion:"
+
+private foreign handler ObjC_FLICManager_forgetButton(\
+    in pManager as ObjcId, \
+    in pButton as ObjcId, \
+    in pCompletionHandler as ObjcBlockPointer) \
+    returns nothing \
+    binds to "objc:flic2lib>FLICManager.-forgetButton:completion:"
+
+variable sForgetButtonCompletionHandlerBlock as optional ObjcBlockPointer
+public handler type ForgetButtonCompletionHandlerType(in pUUID as ObjcId, in pError as optional ObjcId) returns nothing
+public handler ForgetButtonCompletionHandler(in pBlock as ObjcBlockPointer, in pUUID as ObjcId, in pError as optional ObjcId) returns nothing
+
+end handler
+
+variable sScanForButtonsStateChangeHandlerBlock as optional ObjcBlockPointer
+public handler type ScanForButtonsStateChangeHandlerType(in pEvent as NSInteger) returns nothing
+public handler ScanForButtonsStateChangeHandler(in pBlock as ObjcBlockPointer, in pEvent as NSInteger) returns nothing
+    
+end handler
+
+variable sScanForButtonsCompletionHandlerBlock as optional ObjcBlockPointer
+public handler type ScanForButtonsCompletionHandlerType(in pButton as optional ObjcId, in pError as optional ObjcId) returns nothing
+public handler ScanForButtonsCompletionHandler(in pBlock as ObjcBlockPointer, in pButton as optional ObjcId, in pError as optional ObjcId) returns nothing
+    unsafe
+        if pButton is not nothing then
+            post "flicScanForButtonsDidFindButton" to sTarget \
+                with [_FlicButtonToUUID(pButton)]
+        else
+            variable tError as String
+            if pError is not nothing then
+                variable tErrorObj as optional ObjcObject
+                put ObjC_NSError_localizedDescription(pError) into tErrorObj
+                if tErrorObj is not nothing then
+                    put StringFromNSString(tErrorObj) into tError
+                end if
+            end if
+            post "flicScanForButtonsDidFailWithError" to sTarget with [tError]
+        end if
+    end unsafe
+end handler
+
+/* FLICManagerDelegate */
+
+foreign handler ObjC_FLICManagerDelegate_managerDidRestoreState(\
+    in pDelegate as ObjcId, \
+    in pManager as ObjcId) \
+    returns nothing \
+    binds to "objc:.-managerDidRestoreState:"
+
+foreign handler ObjC_FLICManagerDelegate_managerDidUpdateState(\
+    in pDelegate as ObjcId, \
+    in pManager as ObjcId, \
+    in pState as NSInteger) \
+    returns nothing \
+    binds to "objc:.-manager:didUpdateState:"
+
+variable sManagerDelegate as optional ObjcObject
+public handler _FLICManagerDelegateDidRestoreState(in pManager as ObjcId) returns nothing
+    post "flicLibraryDidRestoreState" to sTarget
+end handler
+
+public handler _FLICManagerDelegateDidUpdateState(in pManager as ObjcId, in pState as NSInteger) returns nothing
+    post "flicLibraryDidUpdateState" to sTarget with [_FlicStateToString(pState)]
+end handler
+
+/* FLICButtonDelegate */
+
+foreign handler ObjC_FLICButtonDelegate_buttonDidConnect(\
+    in pDelegate as ObjcId, \
+    in pButton as ObjcId) \
+    returns nothing \
+    binds to "objc:.-buttonDidConnect:"
+
+foreign handler ObjC_FLICButtonDelegate_buttonIsReady(\
+    in pDelegate as ObjcId, \
+    in pButton as ObjcId) \
+    returns nothing \
+    binds to "objc:.-buttonIsReady:"
+
+foreign handler ObjC_FLICButtonDelegate_buttonDidDisconnectWithError(\
+    in pDelegate as ObjcId, \
+    in pButton as ObjcId, \
+    in pError as ObjcId) \
+    returns nothing \
+    binds to "objc:.-button:didDisconnectWithError:"
+
+foreign handler ObjC_FLICButtonDelegate_buttonDidUnpairWithError(\
+    in pDelegate as ObjcId, \
+    in pButton as ObjcId, \
+    in pError as ObjcId) \
+    returns nothing \
+    binds to "objc:.-button:didUnpairWithError:"
+
+foreign handler ObjC_FLICButtonDelegate_buttonDidFailToConnectWithError(\
+    in pDelegate as ObjcId, \
+    in pButton as ObjcId, \
+    in pError as ObjcId) \
+    returns nothing \
+    binds to "objc:.-button:didFailToConnectWithError:"
+
+foreign handler ObjC_FLICButtonDelegate_buttonDidReceiveButtonDown(\
+    in pDelegate as ObjcId, \
+    in pButton as ObjcId, \
+    in pQueued as CBool, \
+    in pAge as NSInteger) \
+    returns nothing \
+    binds to "objc:.-button:didReceiveButtonDown:age:"
+
+foreign handler ObjC_FLICButtonDelegate_buttonDidReceiveButtonUp(\
+    in pDelegate as ObjcId, \
+    in pButton as ObjcId, \
+    in pQueued as CBool, \
+    in pAge as NSInteger) \
+    returns nothing \
+    binds to "objc:.-button:didReceiveButtonUp:age:"
+
+foreign handler ObjC_FLICButtonDelegate_buttonDidReceiveButtonClick(\
+    in pDelegate as ObjcId, \
+    in pButton as ObjcId, \
+    in pQueued as CBool, \
+    in pAge as NSInteger) \
+    returns nothing \
+    binds to "objc:.-button:didReceiveButtonClick:age:"
+
+foreign handler ObjC_FLICButtonDelegate_buttonDidReceiveButtonHold(\
+    in pDelegate as ObjcId, \
+    in pButton as ObjcId, \
+    in pQueued as CBool, \
+    in pAge as NSInteger) \
+    returns nothing \
+    binds to "objc:.-button:didReceiveButtonHold:age:"
+
+foreign handler ObjC_FLICButtonDelegate_buttonDidReceiveButtonDoubleClick(\
+    in pDelegate as ObjcId, \
+    in pButton as ObjcId, \
+    in pQueued as CBool, \
+    in pAge as NSInteger) \
+    returns nothing \
+    binds to "objc:.-button:didReceiveButtonDoubleClick:age:"
+
+foreign handler ObjC_FLICButtonDelegate_buttonDidUpdateNickname(\
+    in pDelegate as ObjcId, \
+    in pButton as ObjcId, \
+    in pQueued as ObjcId) \
+    returns nothing \
+    binds to "objc:.-button:didUpdateNickname:"
+
+variable sButtonDelegate as optional ObjcObject
+
+public handler _FLICButtonDelegateButtonDidConnect(in pButton as ObjcId) returns nothing
+    post "flicButtonDidConnect" to sTarget with [_FlicButtonToUUID(pButton)]
+end handler
+
+public handler _FLICButtonDelegateButtonIsReady(in pButton as ObjcId) returns nothing
+    post "flicButtonIsReady" to sTarget with [_FlicButtonToUUID(pButton)]
+end handler
+
+public handler _FLICButtonDelegateButtonDidDisconnectWithError(in pButton as ObjcId, in pError as optional ObjcId) returns nothing
+    variable tError as String
+    if pError is not nothing then
+        unsafe
+            variable tErrorObj as optional ObjcObject
+            put ObjC_NSError_localizedDescription(pError) into tErrorObj
+            if tErrorObj is not nothing then
+                put StringFromNSString(tErrorObj) into tError
+            end if
+        end unsafe
+    end if
+    post "flicButtonDidDisconnect" to sTarget with [_FlicButtonToUUID(pButton), tError]
+end handler
+
+public handler _FLICButtonDelegateButtonDidUnpairWithError(in pButton as ObjcId, in pError as optional ObjcId) returns nothing
+    variable tError as String
+    if pError is not nothing then
+        unsafe
+            variable tErrorObj as optional ObjcObject
+            put ObjC_NSError_localizedDescription(pError) into tErrorObj
+            if tErrorObj is not nothing then
+                put StringFromNSString(tErrorObj) into tError
+            end if
+        end unsafe
+    end if
+    post "flicButtonDidUnpair" to sTarget with [_FlicButtonToUUID(pButton), tError]
+end handler
+
+public handler _FLICButtonDelegateButtonDidFailToConnectWithError(in pButton as ObjcId, in pError as optional ObjcId) returns nothing
+    variable tError as String
+    if pError is not nothing then
+        unsafe
+            variable tErrorObj as optional ObjcObject
+            put ObjC_NSError_localizedDescription(pError) into tErrorObj
+            if tErrorObj is not nothing then
+                put StringFromNSString(tErrorObj) into tError
+            end if
+        end unsafe
+    end if
+    post "flicButtonDidFailToConnect" to sTarget with [_FlicButtonToUUID(pButton), tError]
+end handler
+
+public handler _FLICButtonDelegateButtonDidRecieveButtonDown(in pButton as ObjcId, in pQueued as CBool, in pAge as NSInteger) returns nothing
+    post "flicButtonDidRecieveButtonDown" to sTarget with [_FlicButtonToUUID(pButton), pQueued]
+end handler
+
+public handler _FLICButtonDelegateButtonDidRecieveButtonUp(in pButton as ObjcId, in pQueued as CBool, in pAge as NSInteger) returns nothing
+    post "flicButtonDidRecieveButtonUp" to sTarget with [_FlicButtonToUUID(pButton), pQueued]
+end handler
+
+public handler _FLICButtonDelegateButtonDidRecieveButtonClick(in pButton as ObjcId, in pQueued as CBool, in pAge as NSInteger) returns nothing
+    post "flicButtonDidRecieveButtonClick" to sTarget with [_FlicButtonToUUID(pButton), pQueued]
+end handler
+
+public handler _FLICButtonDelegateButtonDidRecieveButtonDoubleClick(in pButton as ObjcId, in pQueued as CBool, in pAge as NSInteger) returns nothing
+    post "flicButtonDidRecieveButtonDoubleClick" to sTarget with [_FlicButtonToUUID(pButton), pQueued]
+end handler
+
+public handler _FLICButtonDelegateButtonDidRecieveButtonHold(in pButton as ObjcId, in pQueued as CBool, in pAge as NSInteger) returns nothing
+    post "flicButtonDidRecieveButtonHold" to sTarget with [_FlicButtonToUUID(pButton), pQueued]
+end handler
+
+public handler _FLICButtonDelegateButtonDidUpdateNickname(in pButton as ObjcId, in pName as ObjcId) returns nothing
+    post "flicButtonDidUpdateName" to sTarget with [_FlicButtonToUUID(pButton), StringFromNSString(pName)]
+end handler
+
+/* FLICButtonState */
+
+// The Flic is currently disconnected and a pending connection is not set. The
+// Flic will not connect again unless you manually call the connect method.
+constant kFLICButtonStateDisconnected is 0
+
+// The Flic is currently disconnected, but a pending connection is set. The Flic
+// will automatically connect again as soon as it becomes available.
+constant kFLICButtonStateConnecting is 1
+
+// The Flic currently has a bluetooth connection with the phone. This does not
+// necessarily mean that it has been verified. Please listen for the isReady 
+// event, or read the isReady property, for that information.
+constant kFLICButtonStateConnected is 2
+
+// The Flic is currently connected, but is attempting to disconnect. Typically
+// this state will only occur for very short periods of time before either
+// switching to the connecting or disconnected state again.
+constant kFLICButtonStateDisconnecting is 3
+
+private handler _FlicButtonStateToString(in pState as Integer) returns String
+     if pState is kFLICButtonStateDisconnected then
+        return "disconnected"
+    else if pState is kFLICButtonStateConnecting then
+        return "connecting"
+    else if pState is kFLICButtonStateConnected then
+        return "connected"
+    else if pState is kFLICButtonStateDisconnecting then
+        return "disconnecting"
+    end if
+end handler
+
+private handler _FlicButtonToUUID(in pButton as ObjcObject) returns String
+    unsafe
+        return StringFromNSString(ObjC_FLICButton_uuid(pButton))
+    end unsafe
+end handler
+
+private handler _FlicButtonFromUUID(in pUUID as String) returns optional ObjcObject
+    unsafe
+        variable tFoundButton as optional ObjcObject
+        variable tButtons as List
+        put ListFromNSArray(ObjC_FLICManager_buttons(ObjC_FLICManager_sharedManager())) into tButtons
+
+        variable tButton as ObjcObject
+        repeat for each element tButton in tButtons
+            if _FlicButtonToUUID(tButton) is pUUID then
+                put tButton into tFoundButton
+            end if
+        end repeat
+        return tFoundButton
+    end unsafe
+end handler
+
+variable sTarget as optional ScriptObject
+public unsafe handler _iosFlicInitializeLibrary() returns Boolean
+    put the caller into sTarget
+    
+    if sForgetButtonCompletionHandlerBlock is nothing then
+        if not CreateObjcBlockPointerFromHandler(\
+                ForgetButtonCompletionHandler, \
+                sForgetButtonCompletionHandlerBlock) then
+            return false
+        end if
+    end if
+
+    if sScanForButtonsStateChangeHandlerBlock is nothing then
+        if not CreateObjcBlockPointerFromHandler(\
+                ScanForButtonsStateChangeHandler, \
+                sScanForButtonsStateChangeHandlerBlock) then
+            return false
+        end if
+    end if
+
+    if sScanForButtonsCompletionHandlerBlock is nothing then
+        if not CreateObjcBlockPointerFromHandler(\
+                ScanForButtonsCompletionHandler, \
+                sScanForButtonsCompletionHandlerBlock) then
+            return false
+        end if
+    end if
+
+    if sManagerDelegate is nothing then
+        put CreateObjcInformalDelegate( \
+            [ObjC_FLICManagerDelegate_managerDidRestoreState, \
+            ObjC_FLICManagerDelegate_managerDidUpdateState], \     
+            {"managerDidRestoreState:": _FLICManagerDelegateDidRestoreState, \
+             "manager:didUpdateState:": _FLICManagerDelegateDidUpdateState}) into sManagerDelegate
+        if sManagerDelegate is nothing then
+            return false
+        end if
+    end if
+
+    if sButtonDelegate is nothing then
+        put CreateObjcInformalDelegate( \
+            [ObjC_FLICButtonDelegate_buttonDidConnect, \
+             ObjC_FLICButtonDelegate_buttonIsReady, \
+             ObjC_FLICButtonDelegate_buttonDidDisconnectWithError, \
+             ObjC_FLICButtonDelegate_buttonDidUnpairWithError, \
+             ObjC_FLICButtonDelegate_buttonDidFailToConnectWithError, \
+             ObjC_FLICButtonDelegate_buttonDidReceiveButtonDown, \
+             ObjC_FLICButtonDelegate_buttonDidReceiveButtonUp, \
+             ObjC_FLICButtonDelegate_buttonDidReceiveButtonClick, \
+             ObjC_FLICButtonDelegate_buttonDidReceiveButtonDoubleClick, \
+             ObjC_FLICButtonDelegate_buttonDidReceiveButtonHold, \
+             ObjC_FLICButtonDelegate_buttonDidUpdateNickname], \
+            {"buttonDidConnect:" : _FLICButtonDelegateButtonDidConnect, \
+             "buttonIsReady:": _FLICButtonDelegateButtonIsReady, \
+             "button:didDisconnectWithError:": _FLICButtonDelegateButtonDidDisconnectWithError, \
+             "button:didUnpairWithError:": _FLICButtonDelegateButtonDidUnpairWithError, \
+             "button:didFailToConnectWithError:": _FLICButtonDelegateButtonDidFailToConnectWithError, \
+             "button:didReceiveButtonDown:age:": _FLICButtonDelegateButtonDidRecieveButtonDown, \
+             "button:didReceiveButtonUp:age:": _FLICButtonDelegateButtonDidRecieveButtonUp, \
+             "button:didReceiveButtonClick:age:": _FLICButtonDelegateButtonDidRecieveButtonClick, \
+             "button:didReceiveButtonDoubleClick:age:": _FLICButtonDelegateButtonDidRecieveButtonDoubleClick, \
+             "button:didReceiveButtonHold:age:" : _FLICButtonDelegateButtonDidRecieveButtonHold, \
+             "button:didUpdateNickname:" : _FLICButtonDelegateButtonDidUpdateNickname}) into sButtonDelegate
+        if sButtonDelegate is nothing then
+            return false
+        end if
+    end if
+
+    ObjC_FLICManager_configure(sManagerDelegate, sButtonDelegate, false)
+
+    return true
+end handler
+
+public unsafe handler _iosFlicStartScanningForButtons() returns nothing
+    ObjC_FLICManager_scanForButtons(\
+        ObjC_FLICManager_sharedManager(), \
+        sScanForButtonsStateChangeHandlerBlock, \
+        sScanForButtonsCompletionHandlerBlock)
+end handler
+
+public unsafe handler _iosFlicStopScanningForButtons() returns nothing
+    ObjC_FLICManager_stopScan(\
+        ObjC_FLICManager_sharedManager())
+end handler
+
+public unsafe handler _iosFlicButtonGet(in pUUID as String, in pProperty as String) returns any
+    variable tButton as optional ObjcObject
+    put _FlicButtonFromUUID(pUUID) into tButton
+    if tButton is nothing then
+        return ""
+    end if
+
+    variable tProperty as String
+    put the lower of pProperty into tProperty
+
+    if tProperty is "name" then
+        variable tName as optional ObjcObject
+        put ObjC_FLICButton_nickname(tButton) into tName
+        if tName is nothing then
+            return ""
+        else
+            return StringFromNSString(tName)
+        end if
+    else if tProperty is "bluetoothaddress" then
+        return StringFromNSString(ObjC_FLICButton_bluetoothAddress(tButton))
+    else if tProperty is "serialnumber" then
+        return StringFromNSString(ObjC_FLICButton_serialNumber(tButton))
+    else if tProperty is "state" then
+        return _FlicButtonStateToString(ObjC_FLICButton_state(tButton))
+    else if tProperty is "presscount" then
+        return ObjC_FLICButton_pressCount(tButton)
+    else if tProperty is "isready" then
+        return ObjC_FLICButton_isReady(tButton)
+    else if tProperty is "batteryvoltage" then
+        return ObjC_FLICButton_batteryVoltage(tButton)
+    else if tProperty is "isunpaired" then
+        return ObjC_FLICButton_isUnpaired(tButton)
+    end if
+
+    throw "unknown property"
+end handler
+
+public unsafe handler _iosFlicButtonSet(in pUUID as String, in pProperty as String, in pValue as String) returns nothing
+    variable tButton as optional ObjcObject
+    put _FlicButtonFromUUID(pUUID) into tButton
+    if tButton is nothing then
+        return
+    end if
+
+    variable tProperty as String
+    put the lower of pProperty into tProperty
+
+    if tProperty is "name" then
+        return ObjC_FLICButton_setNickname(tButton, StringToNSString(pValue))
+    end if
+
+    throw "unknown property"
+end handler
+
+public unsafe handler _iosFlicButtonConnect(in pUUID as String) returns nothing
+    variable tButton as optional ObjcObject
+    put _FlicButtonFromUUID(pUUID) into tButton
+    if tButton is nothing then
+        return
+    end if
+
+    ObjC_FLICButton_connect(tButton)
+end handler
+
+public unsafe handler _iosFlicButtonDisconnect(in pUUID as String) returns nothing
+    variable tButton as optional ObjcObject
+    put _FlicButtonFromUUID(pUUID) into tButton
+    if tButton is nothing then
+        return
+    end if
+
+    ObjC_FLICButton_disconnect(tButton)
+end handler
+
+public unsafe handler _iosFlicForgetButton(in pUUID as String) returns nothing
+    variable tButton as optional ObjcObject
+    put _FlicButtonFromUUID(pUUID) into tButton
+    if tButton is nothing then
+        return
+    end if
+
+    ObjC_FLICManager_forgetButton(ObjC_FLICManager_sharedManager(), \
+        tButton, sForgetButtonCompletionHandlerBlock)
+end handler
+
+public unsafe handler _iosFlicPairedButtons() returns String
+    variable tList as List
+    unsafe
+        variable tButtons as List
+        put ListFromNSArray(ObjC_FLICManager_buttons(ObjC_FLICManager_sharedManager())) into tButtons
+
+        variable tButton as ObjcObject
+        repeat for each element tButton in tButtons
+            push _FlicButtonToUUID(tButton) onto back of tList
+        end repeat
+    end unsafe
+
+    variable tStringList as String
+    combine tList with "\n" into tStringList
+    return tStringList
+end handler
+
+end module

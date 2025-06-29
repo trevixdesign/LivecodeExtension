@@ -1,0 +1,722 @@
+/*
+Copyright (C) 2019 LiveCode Ltd.
+
+This file is part of LiveCode.
+
+LiveCode is free software; you can redistribute it and/or modify it under
+the terms of the GNU General Public License v3 as published by the Free
+Software Foundation.
+
+LiveCode is distributed in the hope that it will be useful, but WITHOUT ANY
+WARRANTY; without even the implied warranty of MERCHANTABILITY or
+FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+for more details.
+
+You should have received a copy of the GNU General Public License
+along with LiveCode.  If not see <http://www.gnu.org/licenses/>.  */
+
+/**
+A FLIC button library.
+
+Edition: Indy
+
+OS: ios,android
+
+Platforms:mobile
+
+Description:
+A library for working with FLIC buttons. On iOS the library is only supported
+on iOS 12 devices and up. It is not supported on simulators.
+
+Name: flicScanForButtonsDidFindButton
+Type: message
+Syntax: flicScanForButtonsDidFindButton <pButtonUUID>
+
+Edition: Indy
+
+OS: ios,android
+
+Platforms:mobile
+
+Summary: Sent when a button is found.
+
+Parameters:
+pButtonUUID: A UUID used to identify a paired button.
+
+Description:
+Sent to the object that called flicInitializeLibrary.
+
+Name: flicScanForButtonsDidFailWithError
+Type: message
+Syntax: flicScanForButtonsDidFailWithError <pError>
+
+Edition: Indy
+
+OS: ios,android
+
+Platforms:mobile
+
+Summary: Sent when an error occurred finding buttons.
+
+Parameters:
+pError: An error description.
+
+Description:
+Sent to the object that called flicInitializeLibrary.
+
+Name: flicLibraryDidRestoreState
+Type: message
+Syntax: flicLibraryDidRestoreState
+
+Edition: Indy
+
+OS: ios
+
+Platforms:mobile
+
+Summary: Sent when library restores the state of previous sessions.
+
+Description:
+Sent to the object that called flicInitializeLibrary once the library has been
+restored on iOS. This means that all paired buttons from your previous session
+are restored as well.
+
+Name: flicLibraryDidUpdateState
+Type: message
+Syntax: flicLibraryDidUpdateState <pState>
+
+Edition: Indy
+
+OS: ios
+
+Platforms:mobile
+
+Summary: Sent when the library state updates. iOS only.
+
+Parameters:
+pState: One of:
+- "unknown": State is unknown, update imminent.
+- "resetting": The bluetooth connection with the system service was momentarily
+lost, update imminent.
+- "unsupported": The Flic manager can not be used on this platform.
+- "unauthorized": The application is not authorized to use Bluetooth Low Energy.
+- "off": Bluetooth is currently powered off.
+- "on": Bluetooth is currently powered on and available to use.
+
+Description:
+Sent to the object that called flicInitializeLibrary.
+
+Name: flicButtonDidConnect
+Type: message
+Syntax: flicButtonDidConnect <pButtonUUID>
+
+Edition: Indy
+
+OS: ios,android
+
+Platforms:mobile
+
+Summary: Sent when a button is connected.
+
+Parameters:
+pButtonUUID: A UUID used to identify a paired button.
+
+Description:
+Sent to the object that called flicInitializeLibrary. This message is sent every
+time the Flic establishes a new bluetooth connection. Keep in mind that you also
+have to wait for the flicButtonIsReady message before the Flic is ready to be
+used.
+
+Name: flicButtonIsReady
+Type: message
+Syntax: flicButtonIsReady <pButtonUUID>
+
+Edition: Indy
+
+OS: ios,android
+
+Platforms:mobile
+
+Summary: Sent when a button is ready.
+
+Parameters:
+pButtonUUID: A UUID used to identify a paired button.
+
+Description:
+Sent to the object that called flicInitializeLibrary. This message is sent
+after each connection once the Flic has been cryptographically verified. You
+will not receive any click events before this is called.
+
+Name: flicButtonDidDisconnect
+Type: message
+Syntax: flicButtonDidDisconnect <pButtonUUID>, <pError>
+
+Edition: Indy
+
+OS: ios,android
+
+Platforms:mobile
+
+Summary: Sent when a button disconnects.
+
+Parameters:
+pButtonUUID: A UUID used to identify a paired button.
+pError: An error description if an error occurred.
+
+Description:
+Sent to the object that called flicInitializeLibrary. This message is sent every
+time the bluetooth link with the Flic is lost. This can occur for several
+different reasons. The most common would be that the iOS device and the Flic is
+no longer within range of each other.
+
+Name: flicButtonDidUnpair
+Type: message
+Syntax: flicButtonDidUnpair <pButtonUUID>, <pError>
+
+Edition: Indy
+
+OS: ios,android
+
+Platforms:mobile
+
+Summary: Sent when a button unpairs.
+
+Parameters:
+pButtonUUID: A UUID used to identify a paired button.
+pError: An error description if an error occurred.
+
+Description:
+Sent to the object that called flicInitializeLibrary. The app no longer has a
+valid pairing with the Flic button. The isUnpaired property will now be `true`
+and all connection attempts made will immediately fail. To fix this you need to
+delete the button from the manager and then re-scan it again.
+
+Name: flicButtonDidFailToConnect
+Type: message
+Syntax: flicButtonDidFailToConnect <pButtonUUID>, <pError>
+
+Edition: Indy
+
+OS: ios,android
+
+Platforms:mobile
+
+Summary: Sent when a button fails to connect.
+
+Parameters:
+pButtonUUID: A UUID used to identify a paired button.
+pError: An error description if an error occurred.
+
+Description:
+Sent to the object that called flicInitializeLibrary. This message is sent when
+a connection attempt to a button fails. This indicates that something has gone
+wrong and that the pending connection will not be reset.
+
+Name: flicButtonDidRecieveButtonDown
+Type: message
+Syntax: flicButtonDidRecieveButtonDown <pButtonUUID>, <pQueued>
+
+Edition: Indy
+
+OS: ios,android
+
+Platforms:mobile
+
+Summary: Sent when a button is recieves a button down event.
+
+Parameters:
+pButtonUUID: A UUID used to identify a paired button.
+pQueued: The event was queued while the button was connecting.
+
+Description:
+Sent to the object that called flicInitializeLibrary.
+
+Name: flicButtonDidRecieveButtonUp
+Type: message
+Syntax: flicButtonDidRecieveButtonUp <pButtonUUID>, <pQueued>
+
+Edition: Indy
+
+OS: ios,android
+
+Platforms:mobile
+
+Summary: Sent when a button is recieves a button up event.
+
+Parameters:
+pButtonUUID: A UUID used to identify a paired button.
+pQueued: The event was queued while the button was connecting.
+
+Description:
+Sent to the object that called flicInitializeLibrary.
+
+Name: flicButtonDidRecieveButtonClick
+Type: message
+Syntax: flicButtonDidRecieveButtonClick <pButtonUUID>, <pQueued>
+
+Edition: Indy
+
+OS: ios,android
+
+Platforms:mobile
+
+Summary: Sent when a button is recieves a button click event.
+
+Parameters:
+pButtonUUID: A UUID used to identify a paired button.
+pQueued: The event was queued while the button was connecting.
+
+Description:
+Sent to the object that called flicInitializeLibrary.
+
+Name: flicButtonDidRecieveButtonDoubleClick
+Type: message
+Syntax: flicButtonDidRecieveButtonDoubleClick <pButtonUUID>, <pQueued>
+
+Edition: Indy
+
+OS: ios,android
+
+Platforms:mobile
+
+Summary: Sent when a button is recieves a button doubleclick event.
+
+Parameters:
+pButtonUUID: A UUID used to identify a paired button.
+pQueued: The event was queued while the button was connecting.
+
+Description:
+Sent to the object that called flicInitializeLibrary.
+
+Name: flicButtonDidRecieveButtonHold
+Type: message
+Syntax: flicButtonDidRecieveButtonHold <pButtonUUID>, <pQueued>
+
+Edition: Indy
+
+OS: ios,android
+
+Platforms:mobile
+
+Summary: Sent when a button is recieves a button hold event.
+
+Parameters:
+pButtonUUID: A UUID used to identify a paired button.
+pQueued: The event was queued while the button was connecting.
+
+Description:
+Sent to the object that called flicInitializeLibrary.
+
+Name: flicButtonDidUpdateName
+Type: message
+Syntax: flicButtonDidUpdateName <pButtonUUID>, <pName>
+
+Edition: Indy
+
+OS: ios,android
+
+Platforms:mobile
+
+Summary: Sent when a button name is updated.
+
+Parameters:
+pButtonUUID: A UUID used to identify a paired button.
+pName: The new name of the button.
+
+Description:
+Sent to the object that called flicInitializeLibrary.
+
+*/
+
+library com.livecode.library.native.flic
+
+use com.livecode.foreign
+use com.livecode.java
+use com.livecode.objc
+use com.livecode.engine
+
+// internal modules
+use com.livecode.library.native.flic.ios
+use com.livecode.library.native.flic.android
+
+--------------------------------------------------------------------------------
+-- Meta Data
+--------------------------------------------------------------------------------
+
+metadata version is "1.0.0"
+metadata author is "LiveCode"
+metadata title is "FLIC Button Library"
+metadata svgicon is "M1536 896Q1536 1105 1433 1281.5 1330 1458 1153.5 1561 977 1664 768 1664 559 1664 382.5 1561 206 1458 103 1281.5 0 1105 0 896 0 687 103 510.5 206 334 382.5 231 559 128 768 128 977 128 1153.5 231 1330 334 1433 510.5 1536 687 1536 896Z"
+
+metadata os is "android,ios"
+metadata android.permissions is "BLUETOOTH,BLUETOOTH_ADMIN,ACCESS_FINE_LOCATION,INTERNET"
+
+variable sInit as Boolean
+
+/**
+
+Get a button property.
+
+OS: ios,android
+
+Platforms: mobile
+
+Edition: Indy
+
+Example:
+put flicButtonGet(tButtonUUID, "name") into tName
+
+Parameters:
+pButtonUUID: A UUID used to identify a button.
+pProperty: A button property. One of:
+
+- "name" : The name of the button. This value can also be changed from third
+party apps integrating this framework (including your app). The purpose of this
+is to provide more human readable name that the user can use to identify its
+Flic's across apps. For example "Kitchen Flic" or "Bedroom Lights". The nickname
+will be truncated to the maximum length limit of 23 bytes of UTF8 encoded text.
+- "bluetoothAddress" : The bluetooth address of the Flic. This will be a string
+representation of a 49 bit long address. Example: "00:80:e4:da:12:34:56"
+- "serialNumber" : The serial number is a production identifier that is printed
+on the backside of the Flic inside the battery hatch. This serves no other
+purpose than allowing a user to identify a button by manually looking at it.
+Can be useful in some cases.
+- "state" : The current state of the button. This will be disconnected,
+connecting, starting (Android only), connected or disconnecting (iOS only).
+- "pressCount" : The number of times the Flic has been clicked since last time
+it booted.
+- "isReady" : When a Flic connects it will go through a quick cryptographic
+verification to ensure that it is both a genuine Flic and that it is the correct
+Flic. Once this is completed this property will be set to `true` and it is not
+until after that that you will start receiving click events (if any). As soon as
+the button disconnects this will be set to `false` again.
+- "batteryVoltage" : This will be the last know, battery sample taken on the
+Flic. If this value is 0 then you should assume that no sample has yet been
+taken. It is important to know that the voltage may fluctuate depending on many
+different factors, such as temperature and workload. For example, heavy usage of
+the LED will temporarily lower the voltage, but it is likely to recover shortly
+after. Therefore we do not recomend to exactly translate this value into a
+battery percentage, instead consider showing a "change the battery soon"-status
+in your app once the voltage goes below 2.65V.
+- "isUnpaired" : If this property is YES, then it means that this app's pairing
+with this specific Flic is no longer valid. This can for example occur if the
+Flic has been factory reset, or if the maximum number of pairings have been
+reached. In this case you will need to delete the button from the manager and
+then scan for it again.
+
+Returns:
+The property value.
+
+*/
+public handler flicButtonGet(in pButtonUUID as String, in pProperty as String) returns any
+    if not sInit then
+        return ""
+    end if
+
+    unsafe
+        if _iOS() then
+            return _iosFlicButtonGet(pButtonUUID, pProperty)
+        else if _Android() then
+            return _androidFlicButtonGet(pButtonUUID, pProperty)
+        end if
+    end unsafe
+end handler
+
+/**
+
+Set a button property.
+
+OS: ios,android
+
+Platforms: mobile
+
+Edition: Indy
+
+Example:
+flicButtonSet tButtonUUID, "name", "Help"
+
+Parameters:
+pButtonUUID: A UUID used to identify a button.
+pProperty: A button property:
+- "name" : The name of the button. This value can also be changed from third
+party apps integrating this framework (including your app). The purpose of this
+is to provide more human readable name that the user can use to identify its
+Flic's across apps. For example "Kitchen Flic" or "Bedroom Lights". The nickname
+will be truncated to the maximum length limit of 23 bytes of UTF8 encoded text.
+
+*/
+public handler flicButtonSet(in pButtonUUID as String, in pProperty as String, in pValue as String) returns nothing
+    if not sInit then
+        return
+    end if
+
+    unsafe
+        if _iOS() then
+            _iosFlicButtonSet(pButtonUUID, pProperty, pValue)
+        else if _Android() then
+            _androidFlicButtonSet(pButtonUUID, pProperty, pValue)
+        end if
+    end unsafe
+end handler
+
+/**
+
+Connect to a button.
+
+OS: ios,android
+
+Platforms: mobile
+
+Edition: Indy
+
+Example:
+flicButtonConnect tButtonUUID
+
+Description:
+Attempts to connect the Flic. If the Flic is not available, due to either being
+out of range or not advertising, then it will be connected once it becomes
+available as this call does not time out. This is often called a pending
+connection. It can be canceled by calling disconnect.
+
+Parameters:
+pButtonUUID: A UUID used to identify a button.
+
+*/
+public handler flicButtonConnect(in pButtonUUID as String) returns nothing
+    if not sInit then
+        return
+    end if
+
+    unsafe
+        if _iOS() then
+            _iosFlicButtonConnect(pButtonUUID)
+        else if _Android() then
+            _androidFlicButtonConnect(pButtonUUID)
+        end if
+    end unsafe
+end handler
+
+/**
+
+Disconnect to a button.
+
+OS: ios,android
+
+Platforms: mobile
+
+Edition: Indy
+
+Example:
+flicButtonDisconnect tButtonUUID
+
+Description:
+Disconnect a currently connected Flic or cancel a pending connection.
+
+Parameters:
+pButtonUUID: A UUID used to identify a button.
+
+*/
+public handler flicButtonDisconnect(in pButtonUUID as String) returns nothing
+    if not sInit then
+        return
+    end if
+
+    unsafe
+        if _iOS() then
+            _iosFlicButtonDisconnect(pButtonUUID)
+        else if _Android() then
+            _androidFlicButtonDisconnect(pButtonUUID)
+        end if
+    end unsafe
+end handler
+
+/**
+
+Start scanning for buttons.
+
+OS: ios,android
+
+Platforms: mobile
+
+Edition: Indy
+
+Example:
+flicStartScanningForButtons
+
+Description:
+This method lets you add new Flic buttons to the library.
+
+*/
+public handler flicStartScanningForButtons() returns nothing
+    if not sInit then
+        return
+    end if
+
+    unsafe
+        if _iOS() then
+            _iosFlicStartScanningForButtons()
+        else if _Android() then
+            _androidFlicStartScanningForButtons()
+        end if
+    end unsafe
+end handler
+
+/**
+
+Stop scanning for buttons.
+
+OS: ios,android
+
+Platforms: mobile
+
+Edition: Indy
+
+Example:
+flicStopScanningForButtons
+
+Description:
+Cancel an ongoing button scan. This will result in a scan completion with an
+error.
+
+*/
+public handler flicStopScanningForButtons() returns nothing
+    if not sInit then
+        return
+    end if
+
+    unsafe
+        if _iOS() then
+            _iosFlicStopScanningForButtons()
+        else if _Android() then
+            _androidFlicStopScanningForButtons()
+        end if
+    end unsafe
+end handler
+
+/**
+
+List currently paired buttons.
+
+OS: ios,android
+
+Platforms: mobile
+
+Edition: Indy
+
+Example:
+put flicPairedButtons() into tButtons
+
+Returns:
+A return delimited list of button UUIDs.
+
+Description:
+This will list every button that is currently paired with this application. Each
+button will be added to the list after the flicStartScanningForButtons command
+has completed without error. It is important to know that you may not try to
+access this list until after the flicLibraryInitialized message has been sent.
+
+*/
+public handler flicPairedButtons() returns String
+    if not sInit then
+        return
+    end if
+
+    unsafe
+        if _iOS() then
+            return _iosFlicPairedButtons()
+        else if _Android() then
+            return _androidFlicPairedButtons()
+        end if
+    end unsafe
+end handler
+
+/**
+
+Forget a button from the library.
+
+OS: ios,android
+
+Platforms: mobile
+
+Edition: Indy
+
+Example:
+flicForgetButton tButtonUUID
+
+Description:
+This will delete this button from the library. After a successful call to this
+method you will no longer be able to communicate with the associated Flic button
+unless you pair it again using the flicStartScanningForButtons command. On
+completion, the button will no longer be included in the list of buttons UUIDs
+returned by the flicPairedButtons function.
+
+*/
+public handler flicForgetButton(in pButtonUUID as String) returns nothing
+    if not sInit then
+        return
+    end if
+
+    unsafe
+        if _iOS() then
+            _iosFlicForgetButton(pButtonUUID)
+        else if _Android() then
+            _androidFlicForgetButton(pButtonUUID)
+        end if
+    end unsafe
+end handler
+
+/**
+
+Initialize the library for use.
+
+OS: ios,android
+
+Platforms: mobile
+
+Edition: Indy
+
+Example:
+flicInitializeLibrary
+
+Returns:
+True if the library is initialized or false if it is unable to be initialized.
+
+Description:
+The caller of this handler is the target for all messages.
+
+*/
+public handler flicInitializeLibrary() returns Boolean
+    if sInit then
+        return false
+    end if
+    
+    _CheckLicense()
+    unsafe
+        if _iOS() then
+            put _iosFlicInitializeLibrary() into sInit
+        else if _Android() then
+            put _androidFlicInitializeLibrary() into sInit
+        end if
+    end unsafe
+
+    return sInit
+end handler
+
+private handler _iOS() returns Boolean
+    if the operating system is "ios" and the architecture is not "x86_64" then
+        /* not supported on simulator */
+        return true
+    end if
+
+    return false
+end handler
+
+private handler _Android() returns Boolean
+    return the operating system is "android"
+end handler
+
+private handler _CheckLicense() returns nothing
+    ensure license for extension "com.livecode.library.native.flic" or edition "indy"
+end handler
+
+end library

@@ -1,0 +1,21 @@
+import module com.livecode.library.native.flic
+  use com.livecode.library.native.flic.ios
+  use com.livecode.library.native.flic.android
+  use com.livecode.logic
+  use com.livecode.arithmetic
+  use com.livecode.binary
+  use com.livecode.list
+  use com.livecode.string
+  use com.livecode.type
+  use com.livecode.system
+  use com.livecode.commercial.license
+  handler flicButtonGet(in pButtonUUID as String, in pProperty as String) returns any
+  handler flicButtonSet(in pButtonUUID as String, in pProperty as String, in pValue as String) returns nothing
+  handler flicButtonConnect(in pButtonUUID as String) returns nothing
+  handler flicButtonDisconnect(in pButtonUUID as String) returns nothing
+  handler flicStartScanningForButtons() returns nothing
+  handler flicStopScanningForButtons() returns nothing
+  handler flicPairedButtons() returns String
+  handler flicForgetButton(in pButtonUUID as String) returns nothing
+  handler flicInitializeLibrary() returns Boolean
+end module
