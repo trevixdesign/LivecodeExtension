@@ -1,0 +1,199 @@
+library com.trevix.minewbten
+
+-- Import required modules
+use com.livecode.foreign
+use com.livecode.java
+use com.livecode.library.androidutils
+
+metadata title is "Minew B10 Bluetooth Button"
+metadata author is "Trevix"
+metadata version is "1.0.0"
+
+-- Constants for B10 device
+constant kB10_UUID is "FDA50693-A4E2-4FB1-AFCF-C6EB07647825"
+
+-- Global state variables
+variable sIsScanning as Boolean
+variable sMTCentralManager as optional JObject
+variable sB10Listener as optional JObject
+variable sListenerInterface as optional JObject
+
+-- Foreign handlers for MTBeaconPlus SDK
+foreign handler _JNI_GetMTCentralManager(in pContext as JObject) returns JObject \
+    binds to "java:com.minew.beaconplus.sdk.MTCentralManager>getInstance(Landroid/content/Context;)Lcom/minew/beaconplus/sdk/MTCentralManager;!static"
+
+foreign handler _JNI_StartScan(in pManager as JObject) returns nothing \
+    binds to "java:com.minew.beaconplus.sdk.MTCentralManager>startScan()V"
+
+foreign handler _JNI_StopScan(in pManager as JObject) returns nothing \
+    binds to "java:com.minew.beaconplus.sdk.MTCentralManager>stopScan()V"
+
+foreign handler _JNI_SetMTCentralManagerListener(in pManager as JObject, in pListener as JObject) returns nothing \
+    binds to "java:com.minew.beaconplus.sdk.MTCentralManager>setMTCentralManagerListener(Lcom/minew/beaconplus/sdk/interfaces/MTCentralManagerListener;)V"
+
+-- Foreign handlers for B10Listener (using the working pattern)
+foreign handler _JNI_CreateB10Listener() returns JObject \
+    binds to "java:com.trevix.minewbten.B10Listener>new()"
+
+foreign handler _JNI_CreateB10ListenerInterface(in pCallbacks as Array) returns JObject \
+    binds to "java:com.trevix.minewbten.B10Listener$B10ListenerListener>interface"
+
+foreign handler _JNI_SetB10ListenerInterface(in pListener as JObject, in pInterface as JObject) returns nothing \
+    binds to "java:com.trevix.minewbten.B10Listener>setListener(Lcom/trevix/minewbten/B10Listener$B10ListenerListener;)V"
+
+-- Callback handlers
+handler _OnButtonEventCallback(in pMacAddress as JObject, in pEventType as JObject, in pRSSI as JObject) returns nothing
+    variable tMacAddress as String
+    variable tEventType as String
+    variable tRSSI as Integer
+    
+    put StringFromJString(pMacAddress) into tMacAddress
+    put StringFromJString(pEventType) into tEventType
+    put pRSSI into tRSSI
+    
+    log "B10 Button Event: " & tMacAddress & " - " & tEventType & " (RSSI: " & tRSSI & ")"
+    post "minewB10ButtonPressed" with [tMacAddress, tEventType, tRSSI]
+end handler
+
+handler _OnProximityEventCallback(in pMacAddress as JObject, in pDistance as JObject, in pRSSI as JObject) returns nothing
+    variable tMacAddress as String
+    variable tDistance as String
+    variable tRSSI as Integer
+    
+    put StringFromJString(pMacAddress) into tMacAddress
+    put StringFromJString(pDistance) into tDistance
+    put pRSSI into tRSSI
+    
+    log "B10 Proximity Event: " & tMacAddress & " - " & tDistance & " (RSSI: " & tRSSI & ")"
+    post "minewB10ProximityDetected" with [tMacAddress, tDistance, tRSSI]
+end handler
+
+handler _OnScanStateChangedCallback(in pIsScanning as JObject) returns nothing
+    variable tIsScanning as Boolean
+    put pIsScanning into tIsScanning
+    
+    log "B10 Scan State Changed: " & tIsScanning
+    post "minewB10ScanStateChanged" with [tIsScanning]
+end handler
+
+-- Initialize module
+private handler OnCreate() returns nothing
+    put false into sIsScanning
+    put nothing into sMTCentralManager
+    put nothing into sB10Listener
+    put nothing into sListenerInterface
+end handler
+
+-- Helper to initialize BLE manager
+private handler InitializeBLEManager() returns Boolean
+    if sMTCentralManager is not nothing and sB10Listener is not nothing and sListenerInterface is not nothing then
+        log "BLE Manager already initialized"
+        return true
+    end if
+    
+    log "Starting BLE Manager initialization..."
+    
+    -- Request location permission for BLE scanning
+    if not AndroidRequestPermission("android.permission.ACCESS_FINE_LOCATION") then
+        log "FAILED: Location permission denied"
+        return false
+    end if
+    log "SUCCESS: Location permission granted"
+    
+    unsafe
+        -- Get MTCentralManager instance
+        put _JNI_GetMTCentralManager(ApplicationContext()) into sMTCentralManager
+        if sMTCentralManager is nothing then
+            log "FAILED: MTCentralManager creation"
+            return false
+        end if
+        log "SUCCESS: MTCentralManager created"
+        
+        -- Create B10 listener wrapper
+        put _JNI_CreateB10Listener() into sB10Listener
+        if sB10Listener is nothing then
+            log "FAILED: B10Listener creation"
+            return false
+        end if
+        log "SUCCESS: B10Listener created"
+        
+        -- Create listener interface with callback handlers (only onButtonEvent for now)
+        put _JNI_CreateB10ListenerInterface({"onButtonEvent": _OnButtonEventCallback}) into sListenerInterface
+        if sListenerInterface is nothing then
+            log "FAILED: B10ListenerInterface creation"
+            return false
+        end if
+        log "SUCCESS: B10ListenerInterface created"
+        
+        -- Connect the interface to the listener
+        _JNI_SetB10ListenerInterface(sB10Listener, sListenerInterface)
+        log "SUCCESS: Interface connected to listener"
+        
+        -- Set the B10 listener on the central manager
+        _JNI_SetMTCentralManagerListener(sMTCentralManager, sB10Listener)
+        log "SUCCESS: B10Listener set on MTCentralManager"
+        
+        return true
+    end unsafe
+end handler
+
+-- Public API: Start BLE scanning
+public handler minewStartScanB10() returns Boolean
+    if sIsScanning then
+        return true
+    end if
+    
+    if not InitializeBLEManager() then
+        return false
+    end if
+    
+    unsafe
+        _JNI_StartScan(sMTCentralManager)
+        put true into sIsScanning
+        return true
+    end unsafe
+end handler
+
+-- Public API: Stop BLE scanning  
+public handler minewStopScanB10() returns Boolean
+    if not sIsScanning then
+        return true
+    end if
+    
+    if sMTCentralManager is nothing then
+        return false
+    end if
+    
+    unsafe
+        _JNI_StopScan(sMTCentralManager)
+        put false into sIsScanning
+        return true
+    end unsafe
+end handler
+
+-- Public API: Get status
+public handler minewGetB10Status() returns String
+    if sIsScanning then
+        return "Scanning for B10 buttons..."
+    else
+        return "Not scanning"
+    end if
+end handler
+
+-- Test the callback system
+public handler minewTestB10Callback() returns String
+    if not InitializeBLEManager() then
+        return "Failed to initialize BLE manager"
+    end if
+    
+    return "B10 callback system initialized successfully"
+end handler
+
+-- Cleanup on module destruction
+private handler OnDestroy() returns nothing
+    if sIsScanning then
+        minewStopScanB10()
+    end if
+end handler
+
+end library

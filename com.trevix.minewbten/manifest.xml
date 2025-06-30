@@ -1,0 +1,21 @@
+<package version="0.0">
+  <name>com.trevix.minewbten</name>
+  <title>Minew B10 Bluetooth Button</title>
+  <author>Trevix</author>
+  <version>1.0.0</version>
+  <license>community</license>
+  <type>library</type>
+  <requires name="com.livecode.java"/>
+  <requires name="com.livecode.library.androidutils"/>
+  <requires name="com.livecode.engine"/>
+  <requires name="com.livecode.binary"/>
+  <requires name="com.livecode.list"/>
+  <requires name="com.livecode.string"/>
+  <requires name="com.livecode.arithmetic"/>
+  <requires name="com.livecode.logic"/>
+  <requires name="com.livecode.type"/>
+  <handler name="minewStartScanB10" parameters="" return="boolean"/>
+  <handler name="minewStopScanB10" parameters="" return="boolean"/>
+  <handler name="minewGetB10Status" parameters="" return="string"/>
+  <handler name="minewTestB10Callback" parameters="" return="string"/>
+</package>
